@@ -10,9 +10,10 @@ Credit: Tyh & Yarn
 A lot of changes, Preview: https://youtu.be/kaKkFIy0Ih8
 
 # How to install
-THIS IS NOT FULLY INVENTORY, what you mean?, THIS NOT COPY/PASTE
+### THIS IS NOT FULLY INVENTORY, what you mean?, THIS NOT FULL DRAG & DROP INVENTORY
+You need to copy the files that I change/edit/modify and replace it with the one you have
 
-copy the files that I change/edit/modify down then rebuild the inventory
+unless you wanna keep urs but have some functions and so on, then do it by ur self and contact me if you need help in [Mythic Framework Official Discord Server](https://discord.gg/crBq7e9J2d) 
 
 ## Files that I Change/Edit/Modify List:
 ======= Client Side =======
