@@ -9,15 +9,6 @@ const useStyles = makeStyles((theme) => ({
     pointerEvents: "none",
     zIndex: 1,
   },
-  img: {
-    height: 125,
-    width: "100%",
-    overflow: "hidden",
-    zIndex: 88,
-    backgroundSize: "100%",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center center",
-  },
   label: {
     bottom: 0,
     left: 0,
@@ -40,7 +31,6 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     zIndex: 2,
     borderRadius: 5,
-    // Base styling without rarity
     "&::before": {
       content: '""',
       position: "absolute",
@@ -53,76 +43,32 @@ const useStyles = makeStyles((theme) => ({
       border: `1px solid rgba(255, 255, 255, 0.04)`,
       zIndex: 1,
     },
-    // Rarity styling
-    "&.rarity-1": {
-      "&::before": {
-        background: `${theme.palette.rarities.rare1}30`,
-        boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
-      },
+    "&.rarity-1::before": {
+      background: `${theme.palette.rarities.rare1}80`,
     },
-    "&.rarity-2": {
-      "&::before": {
-        background: `${theme.palette.rarities.rare2}30`,
-        boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
-      },
+    "&.rarity-2::before": {
+      background: `${theme.palette.rarities.rare2}80`,
     },
-    "&.rarity-3": {
-      "&::before": {
-        background: `${theme.palette.rarities.rare3}30`,
-        boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
-      },
+    "&.rarity-3::before": {
+      background: `${theme.palette.rarities.rare3}80`,
     },
-    "&.rarity-4": {
-      "&::before": {
-        background: `${theme.palette.rarities.rare4}30`,
-        boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
-      },
+    "&.rarity-4::before": {
+      background: `${theme.palette.rarities.rare4}80`,
     },
-    "&.rarity-5": {
-      "&::before": {
-        background: `${theme.palette.rarities.rare5}30`,
-        boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
-      },
+    "&.rarity-5::before": {
+      background: `${theme.palette.rarities.rare5}80`,
     },
-    // Alert type styling
-    "&.add": {
-      "&::after": {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: 5,
-        border: `1px solid ${theme.palette.success.main}`,
-        zIndex: 3,
-      },
-    },
-    "&.removed": {
-      "&::after": {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: 5,
-        border: `1px solid ${theme.palette.error.main}`,
-        zIndex: 3,
-      },
-    },
-    "&.used": {
-      "&::after": {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: 5,
-        border: `1px solid ${theme.palette.info.main}`,
-        zIndex: 3,
-      },
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: 5,
+      boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.4)`,
+      zIndex: 2,
+      pointerEvents: "none",
     },
   },
   count: {
@@ -133,6 +79,16 @@ const useStyles = makeStyles((theme) => ({
     padding: "0 5px",
     color: theme.palette.text.main,
     zIndex: 4,
+  },
+  img: {
+    height: 125,
+    width: "100%",
+    overflow: "hidden",
+    position: "relative",
+    zIndex: 3,
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center center",
   },
   type: {
     top: 0,
@@ -157,7 +113,7 @@ export default ({ alert }) => {
   useEffect(() => {
     const t = setTimeout(() => {
       setShow(false)
-    }, 3000)
+    }, 8000)
 
     return () => {
       clearTimeout(t)
@@ -186,7 +142,6 @@ export default ({ alert }) => {
     }
   }
 
-  // Get rarity class based on item data
   const getRarityClass = () => {
     if (!itemData || !itemData.rarity) return ""
     return `rarity-${itemData.rarity}`

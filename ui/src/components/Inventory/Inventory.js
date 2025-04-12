@@ -45,21 +45,23 @@ const useStyles = makeStyles((theme) => ({
 		height: 'fit-content',
 	},
 	playercounter: {
-		position: 'relative',
-		left: "-3vw",
-		transform: 'skewY(2deg) perspective(80vh) rotateY(10deg)',
+		position: "relative",
+		top: "-23%",
+		transform: "skewY(2deg) perspective(800px) rotateY(8deg)",
+		transformOrigin: "center left",
 	},
-	secondcounter: {
-		position: 'relative',
-		left: "3vw",
-		transform: 'skewY(-2deg) perspective(80vh) rotateY(-10deg)',
+	  secondcounter: {
+		position: "relative",
+		top: "-23%",
+		transform: "skewY(-2deg) perspective(800px) rotateY(-8deg)",
+		transformOrigin: "center right",
 	},
 	inventoryGrid: {
 		display: 'grid',
 		gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
 		overflowX: 'hidden',
 		overflowY: 'scroll',
-		maxHeight: 'calc(60vh - 90px)',
+		maxHeight: 'calc(90vh - 90px)',
 		height: 'fit-content',
 		userSelect: 'none',
 		'-webkit-user-select': 'none',
@@ -210,6 +212,20 @@ const useStyles = makeStyles((theme) => ({
 			marginLeft: 6,
 		},
 	},
+	numberInput: {
+		WebkitAppearance: "none",
+		MozAppearance: "textfield",
+		appearance: "textfield",
+		margin: 0,
+		"&::-webkit-inner-spin-button, &::-webkit-outer-spin-button": {
+		  WebkitAppearance: "none",
+		  margin: 0,
+		},
+	},
+	imputscale: {
+		position: "relative",
+		top: "-100%",
+	},
 }));
 
 export default (props) => {
@@ -227,8 +243,13 @@ export default (props) => {
 	const hoverOrigin = useSelector((state) => state.inventory.hoverOrigin);
 	const items = useSelector((state) => state.inventory.items);
 	const inUse = useSelector((state) => state.inventory.inUse);
-
 	const [showHelp, setShowHelp] = useState(false);
+
+	const [scaleValue, setScaleValue] = useState(settings.scaleUI || 1)
+
+	useEffect(() => {
+		Nui.send("UpdateSettings", { scaleUI: scaleValue });
+	}, [scaleValue]);
 
 	const onToggleSound = () => {
 		Nui.send('UpdateSettings', {
@@ -725,7 +746,76 @@ export default (props) => {
 						</IconButton>
 					</Tooltip>
 				</div>
-
+				<div className={classes.buttons}>
+				<Tooltip title="UI Scale">
+					<div className={classes.imputscale}>
+						<div style={{ display: "flex", alignItems: "center", position: "relative" }}>
+						<input
+							type="number"
+							min="0.5"
+							max="2.5"
+							step="0.1"
+							value={scaleValue}
+							className={classes.numberInput}
+							style={{
+							width: "60px",
+							height: "30px",
+							background: "rgba(12,24,38, 0.733)",
+							color: "white",
+							border: `1px solid white`,
+							borderRadius: "4px",
+							padding: "0 24px 0 8px",
+							}}
+						/>
+						<div
+							style={{
+							position: "absolute",
+							right: "4px",
+							display: "flex",
+							flexDirection: "column",
+							height: "100%",
+							justifyContent: "center",
+							}}
+						>
+							<IconButton
+							size="small"
+							onClick={() => {
+								if (scaleValue < 2.5) {
+								const newValue = Math.min(Number.parseFloat((scaleValue + 0.1).toFixed(1)), 2.5)
+								setScaleValue(newValue)
+								}
+							}}
+							style={{
+								padding: "1px",
+								minWidth: "16px",
+								height: "14px",
+								color: "white",
+							}}
+							>
+							<FontAwesomeIcon icon={["fas", "chevron-up"]} style={{ fontSize: "8px" }} />
+							</IconButton>
+							<IconButton
+							size="small"
+							onClick={() => {
+								if (scaleValue > 0.5) {
+								const newValue = Math.max(Number.parseFloat((scaleValue - 0.1).toFixed(1)), 0.5)
+								setScaleValue(newValue)
+								}
+							}}
+							style={{
+								padding: "1px",
+								minWidth: "16px",
+								height: "14px",
+								color: "white",
+							}}
+							>
+							<FontAwesomeIcon icon={["fas", "chevron-down"]} style={{ fontSize: "8px" }} />
+							</IconButton>
+						</div>
+						</div>
+					</div>
+				</Tooltip>
+				</div>
 				<Modal open={showHelp} onClose={() => setShowHelp(false)}>
 					<Box className={classes.helpModal}>
 						<Typography

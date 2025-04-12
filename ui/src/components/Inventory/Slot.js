@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 		width: 125,
 		flexBasis: 125,
 		zIndex: 1,
+		border: `0.01px solid white`, // Added white border
 	  },
 	  slot: {
 		width: '100%',
@@ -49,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 			right: 0,
 			bottom: 0,
 			borderRadius: 5,
-			background: `${theme.palette.rarities.rare1}30`,
+			background: `${theme.palette.rarities.rare1}80`,
 			boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
 			zIndex: 2,
 		  }
@@ -66,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
 			right: 0,
 			bottom: 0,
 			borderRadius: 5,
-			background: `${theme.palette.rarities.rare2}30`,
+			background: `${theme.palette.rarities.rare2}80`,
 			boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
 			zIndex: 2,
 		  }
@@ -83,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
 			right: 0,
 			bottom: 0,
 			borderRadius: 5,
-			background: `${theme.palette.rarities.rare3}30`,
+			background: `${theme.palette.rarities.rare3}80`,
 			boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
 			zIndex: 2,
 		  }
@@ -100,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
 			right: 0,
 			bottom: 0,
 			borderRadius: 5,
-			background: `${theme.palette.rarities.rare4}30`,
+			background: `${theme.palette.rarities.rare4}80`,
 			boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
 			zIndex: 2,
 		  }
@@ -117,14 +118,14 @@ const useStyles = makeStyles((theme) => ({
 			right: 0,
 			bottom: 0,
 			borderRadius: 5,
-			background: `${theme.palette.rarities.rare5}30`,
+			background: `${theme.palette.rarities.rare5}80`,
 			boxShadow: `inset 0 0 20px 20px rgba(0,0,0,0.7)`,
 			zIndex: 2,
 		  }
 		},
 		'&.disabled': {
 		  border: 'none',
-		  background: `${theme.palette.error.main}30`,
+		  background: `${theme.palette.error.main}80`,
 		},
 	  },
 	  img: {
