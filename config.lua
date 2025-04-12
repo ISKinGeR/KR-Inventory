@@ -515,3 +515,21 @@ Config.itemProps = {
         Prop = "prop_pap_camera_01",
     }
 }
+
+
+function kprint(...)
+    local args = {...}
+    local messageToPrint = "[DEBUG] "
+
+    -- Iterate through all arguments and convert tables to strings
+    for i, v in ipairs(args) do
+        if type(v) == "table" then
+            -- Convert tables to a string representation (you can modify this as needed)
+            messageToPrint = messageToPrint .. tostring(v) .. " "
+        else
+            messageToPrint = messageToPrint .. tostring(v) .. " "
+        end
+    end
+
+    print(messageToPrint)
+end

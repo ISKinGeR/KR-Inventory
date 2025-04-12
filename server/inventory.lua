@@ -1531,8 +1531,6 @@ function RegisterCallbacks()
 					return
 				end
 			end
-	
-			-- If conditions not met, return nil
 			cb(nil)
 		end)
 	
@@ -1540,7 +1538,6 @@ function RegisterCallbacks()
 			print("[Server] ERROR in TryGiveItem2:", err)
 			cb(nil)
 		end
-	
 		GivingItemInProgress[source] = nil
 	end)
 
@@ -1661,40 +1658,24 @@ INVENTORY = {
 	GetInventory = function(self, source, owner, invType)
 		return getInventory(source, owner, invType)
 	end,
-	GetSecondaryData = function(self, _src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)
-		print("GetSecondaryData called with:", _src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)
-	
-		if _src and invType and Owner then
-			print("Parameters are valid. Checking permissions...")
-	
+	GetSecondaryData = function(self, _src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)	
+		if _src and invType and Owner then	
 			if entityPermCheck(_src, invType) or (isRaid and Player(_src).state.onDuty == "police") then
-				print("Permission check passed.")
-				local invKey = string.format("%s-%s", Owner, invType)
-				print("Generated inventory key:", invKey)
-	
+				local invKey = string.format("%s-%s", Owner, invType)	
 				if not _openInvs[invKey] then
 					_openInvs[invKey] = {}
-					print("Created new entry for _openInvs[invKey].")
 				end
 	
 				if not _openInvs[invKey][_src] then
 					_openInvs[invKey][_src] = true
-					print("Player", _src, "is allowed to open this inventory.")
-	
-					-- Removed shop check here to allow shop inventories
-					local name = nameOverride or (LoadedEntitys[invType].name or "Unknown")
-					print("Using name:", name)
-	
+					local name = nameOverride or (LoadedEntitys[invType].name or "Unknown")	
 					if LoadedEntitys[tonumber(invType)].shop and shopLocations[Owner] ~= nil then
 						name = string.format(
 							"%s (%s)",
 							shopLocations[Owner].name,
 							LoadedEntitys[tonumber(invType)].name
 						)
-						print("Shop found, using shop name:", name)
 					end
-	
-					-- Generating requested inventory (now includes shops)
 					local requestedInventory = {
 						size = getSlotCount(invType, vehClass, vehModel, slotOverride),
 						name = name,
@@ -1710,17 +1691,11 @@ INVENTORY = {
 						slotOverride = slotOverride,
 						capacityOverride = capacityOverride,
 					}
-					print("Requested inventory:", requestedInventory)
 					return requestedInventory
 				else
-					print("Player", _src, "has already opened this inventory.")
 					return nil
 				end
-			else
-				print("Permission check failed or player is not on duty.")
 			end
-		else
-			print("Invalid parameters received.")
 		end
 		return nil
 	end,
@@ -1785,26 +1760,17 @@ INVENTORY = {
 			return nil
 		end
 	end,	
-	OpenSecondary = function(self, _src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)
-		print("OpenSecondary called with:", _src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)
-		
-		if _src and invType and Owner then
-			print("Valid parameters received. Fetching player and character data...")
-	
+	OpenSecondary = function(self, _src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)		
+		if _src and invType and Owner then	
 			local player = Fetch:Source(_src)
 			if not player then
-				print("Player not found for source:", _src)
 				return
 			end
 			
 			local char = player:GetData("Character")
 			if not char then
-				print("Character data not found for player:", _src)
 				return
-			end
-	
-			print("Character data fetched successfully. Preparing inventory data...")
-	
+			end	
 			local plyrInvData = {
 				size = (LoadedEntitys[1].slots or 10),
 				name = char:GetData("First") .. " " .. char:GetData("Last"),
@@ -1814,32 +1780,14 @@ INVENTORY = {
 				owner = char:GetData("SID"),
 				isWeaponEligble = Weapons:IsEligible(_src),
 				qualifications = char:GetData("Qualifications") or {},
-			}
-	
-			print("Inventory data prepared:", plyrInvData)
-			
-			TriggerEvent("Inventory:Server:Opened", _src, Owner, invType)
-			print("TriggerEvent for 'Inventory:Server:Opened' sent.")
-	
-			local secondaryData = Inventory:GetSecondaryData(_src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)
-			print("Secondary data retrieved:", secondaryData)
-	
-			TriggerClientEvent("Inventory:Client:Open", _src, plyrInvData, secondaryData)
-			print("TriggerClientEvent for 'Inventory:Client:Open' sent.")
-			
-			plyrInvData.inventory = getInventory(_src, char:GetData("SID"), 1)
-			print("Player inventory fetched:", plyrInvData.inventory)
-	
-			plyrInvData.loaded = true
-			print("Setting 'loaded' to true in plyrInvData")
-	
-			TriggerClientEvent("Inventory:Client:Cache", _src, plyrInvData)
-			print("TriggerClientEvent for 'Inventory:Client:Cache' sent.")
-			
+			}			
+			TriggerEvent("Inventory:Server:Opened", _src, Owner, invType)	
+			local secondaryData = Inventory:GetSecondaryData(_src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride)	
+			TriggerClientEvent("Inventory:Client:Open", _src, plyrInvData, secondaryData)			
+			plyrInvData.inventory = getInventory(_src, char:GetData("SID"), 1)	
+			plyrInvData.loaded = true	
+			TriggerClientEvent("Inventory:Client:Cache", _src, plyrInvData)			
 			TriggerClientEvent("Inventory:Client:Load", _src, plyrInvData, Inventory:GetSecondary(_src, invType, Owner, vehClass, vehModel, isRaid, nameOverride, slotOverride, capacityOverride))
-			print("TriggerClientEvent for 'Inventory:Client:Load' sent.")
-		else
-			print("Invalid parameters received. Missing required data.")
 		end
 	end,	
 	GetSlots = function(self, Owner, Type)
