@@ -1,8 +1,47 @@
 # mythic-inventory
-mythic inventory
+ mythic inventory
 
-Credit: Blake from FiveForge Studios
-![image](https://github.com/user-attachments/assets/649547a9-2f81-47e9-865d-f6ec0220276f)
+ contact me if you need help in [Mythic Framework Official Discord Server](https://discord.gg/crBq7e9J2d) 
 
-Credit: Tyh & Yarn
-![image](https://github.com/user-attachments/assets/848c931e-2f5b-4d40-a48f-fb99ceda1632)
+ # Credits
+ Credit: Blake from FiveForge Studios 
+
+ Credit: Tyh & Yarn
+ 
+ # Whats in it?
+- All what have in original [Inventory](https://github.com/Mythic-Framework/mythic-framework/tree/main/resources/%5Bmythic%5D/mythic-inventory)
+- GiveItem functions
+- Live shared Invetnory
+- Ui Changes, color and UI Scale changer
+- Semi-anti dupe (not sure if its work or no)
+
+and a lot of other things
+
+Preview: https://youtu.be/jqHGf_c1LOs
+ 
+ # How to install
+ ### THIS IS NOT FULLY INVENTORY, what you mean?
+You will need to get ur own images for the inventory, use ur own and add it to this path ([mythic]\mythic-inventory\ui\images\items)
+
+Or  [Download Default Images from Default Inventory](https://github.com/Mythic-Framework/mythic-framework/tree/main/resources/%5Bmythic%5D/mythic-inventory/ui/images/items)
+
+ ## Files that I Change/Edit/Modify List:
+ ======= Client Side =======
+ - client/inventory.lua
+ 
+ ======= Server Side =======
+ - server/inventory.lua
+ - server/startup.lua -- this for invscale command which alloe you to change the scale of inventory
+ - server/stash.lua
+ 
+ ======= Ui/src =======
+ - containers/App/index.js -- the colors and so on
+ 
+ - components/Inventory/Inventory.js
+ - components/Inventory/reducer.js
+ - components/Inventory/Slot.js
+ - components/Inventory/Split.js
+ - components/Inventory/StaticTooltip.jsx
+ - components/Inventory/Tooltip.jsx
+ 
+ - components/Changes/Alert.jsx
