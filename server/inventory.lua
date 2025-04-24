@@ -203,7 +203,8 @@ AddEventHandler("Core:Shared:Ready", function()
 			local player = Fetch:Source(source)
 			local char = player:GetData("Character")
 			local sid = char:GetData("SID")
-			
+			Player(source).state.pSID = sid
+
 			refreshShit(sid, true)
 
 			if char:GetData("InventorySettings") == nil then
@@ -241,7 +242,8 @@ AddEventHandler("Core:Shared:Ready", function()
 			end
 
 			Player(source).state.isGivingItem = nil
-
+			Player(source).state.pSID = nil
+			
 			Callbacks:ClientCallback(source, "Weapons:Logout", {}, function(data)
 				if data ~= nil then
 					Weapons:Save(source, data.slot, data.ammo, data.clip)
@@ -294,6 +296,11 @@ RegisterServerEvent("Inventory:server:closePlayerInventory", function()
 		refreshShit(char:GetData("SID"), true)
 	end
 end)
+
+function updateSlotForClients(_src, owner, invType, slot)
+    local slotData = Inventory:GetSlot(owner, slot, invType)
+    TriggerClientEvent("Inventory:Client:UpdateSlot", _src, owner, invType, slot, slotData)
+end
 
 function sendRefreshForClient(_src, owner, invType, slot)
 	--local data = Inventory:GetSlot(owner, slot, invType)
@@ -407,7 +414,11 @@ end
 function getInventory(src, Owner, Type, limit)
 	if src and LoadedEntitys[tonumber(Type)].shop then
 		local char = Fetch:Source(src):GetData("Character")
-
+		if LoadedEntitys[Type].itemSet == 1 or LoadedEntitys[Type].itemSet == 13 or LoadedEntitys[Type].itemSet == 18 then
+			if GlobalState["OneOnline"] then
+				LoadedEntitys[Type].itemSet = LoadedEntitys[Type].itemSet * 1000
+			end
+		end	
 		local items = {}
 		if entityPermCheck(src, Type) then
 			for k, v in ipairs(Config.ShopItemSets[LoadedEntitys[Type].itemSet]) do
@@ -714,70 +725,24 @@ function DoMerge(source, data, cb)
 				_refreshAttchs[data.ownerTo] = source
 			end
 
+			sendRefreshForClient(source, data.ownerFrom, data.invTypeFrom, data.slotFrom)
+			sendRefreshForClient(source, data.ownerTo, data.invTypeTo, data.slotTo)
+
 			if not data.IsGiveItemBoi then
 				local srcOpenTo = _openInvs[string.format("%s-%s", data.ownerTo, data.invTypeTo)]
 				local srcOpenFrom = _openInvs[string.format("%s-%s", data.ownerFrom, data.invTypeFrom)]
-				local InventoryDATA_To = getInventory(nil, data.ownerTo, 1)
-				local InventoryDATASecond_To = Inventory:GetSecondary(nil, data.invTypeTo, data.ownerTo, data.class or false, data.model or false)
-				local InventoryDATA_From = getInventory(nil, data.ownerFrom, 1)
-				local InventoryDATASecond_From = Inventory:GetSecondary(nil, data.invTypeFrom, data.ownerFrom, data.class or false, data.model or false)
-				local combinedSources = {}
 				if srcOpenTo then
 					for src, _ in pairs(srcOpenTo) do
-						combinedSources[src] = "To"
+						updateSlotForClients(src, data.ownerTo, data.invTypeTo, data.slotTo)
 					end
 				end
 				if srcOpenFrom then
 					for src, _ in pairs(srcOpenFrom) do
-						combinedSources[src] = "From"
+						updateSlotForClients(src, data.ownerFrom, data.invTypeFrom, data.slotFrom)
 					end
 				end
 
-				for src, context in pairs(combinedSources) do
-					local player = Fetch:Source(src)
-					if not player then
-						goto continue
-					end
-
-					local char = player:GetData("Character")
-					if not char then
-						goto continue
-					end
-					local charSID = char:GetData("SID")
-					local isOwner, secondaryInventory
-					if context == "To" then
-						isOwner = (charSID == data.ownerTo)
-						secondaryInventory = InventoryDATASecond_To
-					else
-						isOwner = (charSID == data.ownerFrom)
-						secondaryInventory = InventoryDATASecond_From
-					end
-
-					if isOwner then
-						local plyrInvData = {
-							size = LoadedEntitys[1].slots or 10,
-							name = char:GetData("First").." "..char:GetData("Last"),
-							inventory = context == "To" and InventoryDATA_To or InventoryDATA_From,
-							invType = 1,
-							capacity = LoadedEntitys[1].capacity,
-							owner = charSID,
-							isWeaponEligble = Weapons:IsEligible(src),
-							qualifications = char:GetData("Qualifications") or {},
-							loaded = true
-						}
-
-						TriggerClientEvent("Inventory:Client:Cache", src, plyrInvData)
-						TriggerClientEvent("Inventory:Client:Load", src, plyrInvData)
-					else
-						TriggerClientEvent("Inventory:Client:Load", src, "skip", secondaryInventory)
-					end
-
-					::continue::
-				end
 			end
-
-			sendRefreshForClient(source, data.ownerFrom, data.invTypeFrom, data.slotFrom)
-			sendRefreshForClient(source, data.ownerTo, data.invTypeTo, data.slotTo)
 
 			return cb({ success = true })
 		end
@@ -953,70 +918,24 @@ function DoSwap(source, data, cb)
 				_refreshAttchs[data.ownerTo] = source
 			end
 
+			sendRefreshForClient(source, data.ownerFrom, data.invTypeFrom, data.slotFrom)
+			sendRefreshForClient(source, data.ownerTo, data.invTypeTo, data.slotTo)
+
 			if not data.IsGiveItemBoi then
 				local srcOpenTo = _openInvs[string.format("%s-%s", data.ownerTo, data.invTypeTo)]
 				local srcOpenFrom = _openInvs[string.format("%s-%s", data.ownerFrom, data.invTypeFrom)]
-				local InventoryDATA_To = getInventory(nil, data.ownerTo, 1)
-				local InventoryDATASecond_To = Inventory:GetSecondary(nil, data.invTypeTo, data.ownerTo, data.class or false, data.model or false)
-				local InventoryDATA_From = getInventory(nil, data.ownerFrom, 1)
-				local InventoryDATASecond_From = Inventory:GetSecondary(nil, data.invTypeFrom, data.ownerFrom, data.class or false, data.model or false)
-				local combinedSources = {}
 				if srcOpenTo then
 					for src, _ in pairs(srcOpenTo) do
-						combinedSources[src] = "To"
+						updateSlotForClients(src, data.ownerTo, data.invTypeTo, data.slotTo)
 					end
 				end
 				if srcOpenFrom then
 					for src, _ in pairs(srcOpenFrom) do
-						combinedSources[src] = "From"
+						updateSlotForClients(src, data.ownerFrom, data.invTypeFrom, data.slotFrom)
 					end
 				end
 
-				for src, context in pairs(combinedSources) do
-					local player = Fetch:Source(src)
-					if not player then
-						goto continue
-					end
-
-					local char = player:GetData("Character")
-					if not char then
-						goto continue
-					end
-					local charSID = char:GetData("SID")
-					local isOwner, secondaryInventory
-					if context == "To" then
-						isOwner = (charSID == data.ownerTo)
-						secondaryInventory = InventoryDATASecond_To
-					else
-						isOwner = (charSID == data.ownerFrom)
-						secondaryInventory = InventoryDATASecond_From
-					end
-
-					if isOwner then
-						local plyrInvData = {
-							size = LoadedEntitys[1].slots or 10,
-							name = char:GetData("First").." "..char:GetData("Last"),
-							inventory = context == "To" and InventoryDATA_To or InventoryDATA_From,
-							invType = 1,
-							capacity = LoadedEntitys[1].capacity,
-							owner = charSID,
-							isWeaponEligble = Weapons:IsEligible(src),
-							qualifications = char:GetData("Qualifications") or {},
-							loaded = true
-						}
-
-						TriggerClientEvent("Inventory:Client:Cache", src, plyrInvData)
-						TriggerClientEvent("Inventory:Client:Load", src, plyrInvData)
-					else
-						TriggerClientEvent("Inventory:Client:Load", src, "skip", secondaryInventory)
-					end
-
-					::continue::
-				end
 			end
-
-			sendRefreshForClient(source, data.ownerFrom, data.invTypeFrom, data.slotFrom)
-			sendRefreshForClient(source, data.ownerTo, data.invTypeTo, data.slotTo)
 
 			return cb({ success = true })
 		end
@@ -1129,27 +1048,9 @@ function DoMove(source, data, cb)
 				TriggerClientEvent("Inventory:CloseUI", source)
 				return
 			end
-
-			local targetInventoryName = string.format("%s-%s", data.ownerTo, data.invTypeTo)
-			local existingInSlot = MySQL.query.await([[
-				SELECT item_id FROM inventory 
-				WHERE name = ? 
-				AND slot = ? 
-				LIMIT 1
-			]], {targetInventoryName, data.slotTo})
 			
-			if existingInSlot and #existingInSlot > 0 then
-				if existingInSlot[1].item_id ~= data.name then
-					cb({ reason = "This Slot In Use" })
-					sendRefreshForClient(source, data.ownerFrom, data.invTypeFrom, data.slotFrom)
-					sendRefreshForClient(source, data.ownerTo, data.invTypeTo, data.slotTo)
-					CloseUIAndClearThing(source)
-					return
-				end
-			end
-
-			if existingInSlot and #existingInSlot > 0 then
-				cb({ reason = "This Slot In Use" })
+			if slotTo ~= nil and slotTo.Name ~= data.name then
+				cb({ reason = "This Slot In Use By Another Item" })
 				sendRefreshForClient(source, data.ownerFrom, data.invTypeFrom, data.slotFrom)
 				sendRefreshForClient(source, data.ownerTo, data.invTypeTo, data.slotTo)
 				CloseUIAndClearThing(source)
@@ -1274,67 +1175,6 @@ function DoMove(source, data, cb)
 				end
 			end
 
-			if not data.IsGiveItemBoi then
-				local srcOpenTo = _openInvs[string.format("%s-%s", data.ownerTo, data.invTypeTo)]
-				local srcOpenFrom = _openInvs[string.format("%s-%s", data.ownerFrom, data.invTypeFrom)]
-				local InventoryDATA_To = getInventory(nil, data.ownerTo, 1)
-				local InventoryDATASecond_To = Inventory:GetSecondary(nil, data.invTypeTo, data.ownerTo, data.class or false, data.model or false)
-				local InventoryDATA_From = getInventory(nil, data.ownerFrom, 1)
-				local InventoryDATASecond_From = Inventory:GetSecondary(nil, data.invTypeFrom, data.ownerFrom, data.class or false, data.model or false)
-				local combinedSources = {}
-				if srcOpenTo then
-					for src, _ in pairs(srcOpenTo) do
-						combinedSources[src] = "To"
-					end
-				end
-				if srcOpenFrom then
-					for src, _ in pairs(srcOpenFrom) do
-						combinedSources[src] = "From"
-					end
-				end
-
-				for src, context in pairs(combinedSources) do
-					local player = Fetch:Source(src)
-					if not player then
-						goto continue
-					end
-
-					local char = player:GetData("Character")
-					if not char then
-						goto continue
-					end
-					local charSID = char:GetData("SID")
-					local isOwner, secondaryInventory
-					if context == "To" then
-						isOwner = (charSID == data.ownerTo)
-						secondaryInventory = InventoryDATASecond_To
-					else
-						isOwner = (charSID == data.ownerFrom)
-						secondaryInventory = InventoryDATASecond_From
-					end
-
-					if isOwner then
-						local plyrInvData = {
-							size = LoadedEntitys[1].slots or 10,
-							name = char:GetData("First").." "..char:GetData("Last"),
-							inventory = context == "To" and InventoryDATA_To or InventoryDATA_From,
-							invType = 1,
-							capacity = LoadedEntitys[1].capacity,
-							owner = charSID,
-							isWeaponEligble = Weapons:IsEligible(src),
-							qualifications = char:GetData("Qualifications") or {},
-							loaded = true
-						}
-
-						TriggerClientEvent("Inventory:Client:Cache", src, plyrInvData)
-						TriggerClientEvent("Inventory:Client:Load", src, plyrInvData)
-					else
-						TriggerClientEvent("Inventory:Client:Load", src, "skip", secondaryInventory)
-					end
-
-					::continue::
-				end
-			end
 
 			if data.ownerFrom ~= data.ownerTo and WEAPON_PROPS[item.name] ~= nil then
 				_refreshAttchs[data.ownerFrom] = source
@@ -1343,6 +1183,22 @@ function DoMove(source, data, cb)
 		
 			sendRefreshForClient(source, data.ownerFrom, data.invTypeFrom, data.slotFrom)
 			sendRefreshForClient(source, data.ownerTo, data.invTypeTo, data.slotTo)
+
+			if not data.IsGiveItemBoi then
+				local srcOpenTo = _openInvs[string.format("%s-%s", data.ownerTo, data.invTypeTo)]
+				local srcOpenFrom = _openInvs[string.format("%s-%s", data.ownerFrom, data.invTypeFrom)]
+				if srcOpenTo then
+					for src, _ in pairs(srcOpenTo) do
+						updateSlotForClients(src, data.ownerTo, data.invTypeTo, data.slotTo)
+					end
+				end
+				if srcOpenFrom then
+					for src, _ in pairs(srcOpenFrom) do
+						updateSlotForClients(src, data.ownerFrom, data.invTypeFrom, data.slotFrom)
+					end
+				end
+
+			end
 
 			return cb({ success = true })
 		end
@@ -1868,35 +1724,30 @@ INVENTORY = {
 		})
 	end,
 	CreateItemWithNoMeta = function(self, Owner, Name, Count, Slot, MetaData, invType, isRecurse)
-		if not Count or not tonumber(Count) or Count <= 0 then
-			Count = 1
-		end
-
-		local itemExist = itemsDatabase[Name]
-		if itemExist then
-			local p = promise.new()
-
-			if
-				not itemExist.isStackable and Count > 1
-				or Count > 50
-				or (type(itemExist.isStackable) == "number" and Count > itemExist.isStackable and itemExist.isStackable > 0)
-			then
-				while
-					not itemExist.isStackable and itemExist.isStackable ~= -1 and Count > 1
-					or Count > 50
-					or (type(itemExist.isStackable) == "number" and Count > itemExist.isStackable and itemExist.isStackable > 0)
-				do
-					local s = Count > 50 and 50 or itemExist.isStackable or 1
-					self:CreateItemWithNoMeta(Owner, Name, Count, Slot, MetaData, invType, true)
-					Count = Count - s
-				end
-			end
-
-			return Inventory:AddSlot(Owner, Name, Count, MetaData, Slot, invType)
-		else
-			return false
-		end
-	end,
+        if not Count or not tonumber(Count) or Count <= 0 then
+            Count = 1
+        end
+    
+        local itemExist = itemsDatabase[Name]
+        if itemExist then
+            if not isRecurse then
+                if (not itemExist.isStackable and Count > 1)
+                    or Count > 50
+                    or (type(itemExist.isStackable) == "number" and Count > itemExist.isStackable and itemExist.isStackable > 0)
+                then
+                    while Count > 0 do
+                        local s = math.min(Count, (type(itemExist.isStackable) == "number" and itemExist.isStackable > 0) and itemExist.isStackable or 50)
+                        self:CreateItemWithNoMeta(Owner, Name, s, Slot, MetaData, invType, true)
+                        Count = Count - s
+                    end
+                    return true
+                end
+            end
+            return Inventory:AddSlot(Owner, Name, Count, MetaData, Slot, invType)
+        else
+            return false
+        end
+    end,
 	CreateItem = function(self, Owner, Name, Count, Slot, md, invType, isRecurse, forceCreateDate, quality)
 		local MetaData = table.copy(md or {})
 

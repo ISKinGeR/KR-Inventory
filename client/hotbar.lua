@@ -4,7 +4,7 @@ function GetHBItems()
     else
         local ret = {}
         for k, v in ipairs(_cachedInventory.inventory) do
-            if v.Slot <= 4 then
+            if v.Slot <= 5 then
                 table.insert(ret, v)
             end
         end

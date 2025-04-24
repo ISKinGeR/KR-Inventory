@@ -217,7 +217,7 @@ RegisterNetEvent("Inventory:Client:Open", function(inventory, inventory2)
             while LocalPlayer.state.inventoryOpen do
                 Wait(50)
             end
-            TriggerServerEvent("Inventory:server:closePlayerInventory", LocalPlayer.state.Character:GetData("SID"))
+            TriggerServerEvent("Inventory:server:closePlayerInventory", LocalPlayer.state.pSID)
         end)
     else
         LocalPlayer.state.inventoryOpen = false
@@ -336,6 +336,12 @@ INVENTORY = {
 					},
 				})
 			end,
+			UpdateSlot = function(self, payload)
+				SendNUIMessage({
+					type = "UPDATE_PLAYER_SLOT",
+					data = payload
+				})
+			end
 		},
 		Secondary = {
 			Data = {
@@ -356,6 +362,12 @@ INVENTORY = {
 					},
 				})
 			end,
+			UpdateSlot = function(self, payload)
+				SendNUIMessage({
+					type = "UPDATE_SECONDARY_SLOT",
+					data = payload
+				})
+			end
 		},
 	},
 	Used = {
@@ -678,11 +690,26 @@ RegisterNetEvent("Inventory:Container:Remove", function(data, from)
 end)
 
 RegisterNetEvent("Inventory:Client:SetSlot", function(owner, type, slot)
+	print(json.encode(owner),json.encode(type),json.encode(slot))
 	if SecondInventory?.owner == owner and SecondInventory?.invType == type then
 		Inventory.Set.Secondary:Slot(slot)
 	else
 		Inventory.Set.Player:Slot(slot)
 	end
+end)
+
+RegisterNetEvent("Inventory:Client:UpdateSlot", function(owner, invType, slot, slotData)
+    if owner == LocalPlayer.state.pSID and invType == 1 then
+        Inventory.Set.Player:UpdateSlot({
+            slot = slot,
+            data = slotData
+        })
+    elseif SecondInventory.owner == owner and SecondInventory.invType == invType then
+        Inventory.Set.Secondary:UpdateSlot({
+            slot = slot,
+            data = slotData
+        })
+    end
 end)
 
 local runningId = 0
