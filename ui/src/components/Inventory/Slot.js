@@ -1273,6 +1273,13 @@ export default connect()((props) => {
 		}
 	};
 
+
+  useEffect(() => {
+    if (props.data?.Name && !itemData) {
+      console.error(`Item data not found for: ${props.data.Name}`);
+    }
+  }, [props.data?.Name, itemData]);
+
 	return (
 		<div
 			className={`${classes.slotWrap}${
@@ -1290,8 +1297,8 @@ export default connect()((props) => {
 				} ${
 					!Boolean(props.data?.Name)
 						? ` empty`
-						: ` rarity-${itemData.rarity}`
-				}${
+            			: ` rarity-${itemData?.rarity || 'unknown'}`
+          }${
 					hoverOrigin != null &&
 					hoverOrigin.slot === props.slot &&
 					hoverOrigin.owner === props.owner &&

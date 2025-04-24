@@ -342,13 +342,10 @@ const appReducer = (state = initialState, action) => {
 						...state.player.disabled,
 						[action.payload.slot]: false,
 					},
-					// inventory: [
-					// 	...state.player.inventory.map((slot) => {
-					// 		if (slot?.Slot == action.payload.slot)
-					// 			return { ...action.payload.data };
-					// 		else return slot;
-					// 	}),
-					// ],
+					inventory: [
+						...state.player.inventory.filter(slot => slot?.Slot != action.payload.data?.Slot),
+						...(action.payload.data ? [action.payload.data] : [])
+					],
 				},
 			};
 		}
@@ -372,16 +369,61 @@ const appReducer = (state = initialState, action) => {
 						...state.secondary.disabled,
 						[action.payload.slot]: false,
 					},
-					// inventory: [
-					// 	...state.secondary.inventory.map((slot) => {
-					// 		if (slot?.Slot == action.payload.slot)
-					// 			return { ...action.payload.data };
-					// 		else return slot;
-					// 	}),
-					// ],
+					inventory: [
+						...state.secondary.inventory.filter(slot => slot?.Slot != action.payload.data?.Slot),
+						...(action.payload.data ? [action.payload.data] : [])
+					],
 				},
 			};
 		}
+		case 'UPDATE_PLAYER_SLOT': {
+			// Create a new inventory array with the item removed from the old slot
+			let newInventory = [...state.player.inventory.filter(slot => 
+				// Keep all items except the one in the slot we're updating
+				slot?.Slot != action.payload.slot
+			)];
+			
+			// If we have new data, add it to the inventory
+			if (action.payload.data) {
+				newInventory.push(action.payload.data);
+			}
+			
+			return {
+				...state,
+				player: {
+					...state.player,
+					disabled: {
+						...state.player.disabled,
+						[action.payload.slot]: false,
+					},
+					inventory: newInventory
+				},
+			};
+		}
+		case 'UPDATE_SECONDARY_SLOT': {
+			// Create a new inventory array with the item removed from the old slot
+			let newInventory = [...state.secondary.inventory.filter(slot => 
+				// Keep all items except the one in the slot we're updating
+				slot?.Slot != action.payload.slot
+			)];
+			
+			// If we have new data, add it to the inventory
+			if (action.payload.data) {
+				newInventory.push(action.payload.data);
+			}
+			
+			return {
+				...state,
+				secondary: {
+					...state.secondary,
+					disabled: {
+						...state.secondary.disabled,
+						[action.payload.slot]: false,
+					},
+					inventory: newInventory
+				},
+			};
+		}			
 		case 'SET_SPLIT_ITEM': {
 			return {
 				...state,
